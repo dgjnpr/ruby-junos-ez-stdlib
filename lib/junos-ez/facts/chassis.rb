@@ -28,9 +28,13 @@ Junos::Ez::Facts::Keeper.define( :routingengines ) do |ndev, facts|
 
   re_facts = ['mastership-state','status','model','up-time','last-reboot-reason']
   re_info = ndev.rpc.get_route_engine_information
+  # this is the bug. it doesn't check that the RE is not in an OK state 
+  # before trying to get the facts
   re_info.xpath('//route-engine').each do |re|
     slot_id = re.xpath('slot').text || "0"
     slot = ("RE" + slot_id).to_sym
+    # don't collect facts unless RE status is OK
+    next unless re.xpath('//status').text.strip == 'OK'
     facts[slot] = Hash[ re_facts.collect{ |ele| [ ele.tr('-','_').to_sym, re.xpath(ele).text ] } ]
     if facts[slot][:mastership_state].empty?
       facts[slot].delete :mastership_state
