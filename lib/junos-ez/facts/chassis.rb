@@ -1,7 +1,7 @@
 Junos::Ez::Facts::Keeper.define( :chassis ) do |ndev, facts|
   
   inv_info = ndev.rpc.get_chassis_inventory
-  chassis = inv_info.xpath('//chassis')
+  chassis = inv_info.xpath('//chassis').first
   
   facts[:hardwaremodel] = chassis.xpath('description').text
   facts[:serialnumber] = chassis.xpath('serial-number').text           
